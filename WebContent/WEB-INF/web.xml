@@ -28,6 +28,10 @@
     <servlet-class>com.acme.modres.CustomerInfoServlet</servlet-class>
   </servlet>
   <servlet>
+    <servlet-name>ChatServlet</servlet-name>
+    <servlet-class>com.acme.modres.ChatServlet</servlet-class>
+  </servlet>
+  <servlet>
     <servlet-name>MyPOServlet</servlet-name>
     <servlet-class>com.acme.modres.MyPOServlet</servlet-class>
   </servlet>
@@ -39,6 +43,14 @@
     <servlet-name>MyReceivingPOServlet</servlet-name>
     <servlet-class>com.acme.modres.MyPOReceivingServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>JmsConnectionCheckerServlet</servlet-name>
+    <servlet-class>com.acme.modres.JmsConnectionCheckerServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>JmsConnectionCheckerServlet</servlet-name>
+    <url-pattern>/chat/connect</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>MyPOServlet</servlet-name>
     <url-pattern>/po</url-pattern>
@@ -54,6 +66,10 @@
   <servlet-mapping>
     <servlet-name>CustomerInfoServlet</servlet-name>
     <url-pattern>/customers</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ChatServlet</servlet-name>
+    <url-pattern>/chat</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>AvailabilityCheckerServlet</servlet-name>

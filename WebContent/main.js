@@ -114,6 +114,37 @@ selectCity.addEventListener("change", function(e){
     container.classList.remove("is-selected");
 });
 
+window.onload = function() {
+    var url = window.location;
+    var request = new XMLHttpRequest();
+
+    var chatContainer = document.getElementById("chat-container");
+    const btn = document.createElement("img");
+    btn.id = "chat-btn"
+    btn.src = "images/chat-box-icon.svg";
+
+    // make GET request to servlet to test connection
+    request.open('GET', url.protocol+ "//" + url.hostname + ":" + url.port + "/resorts/chat/connect", true);
+
+    request.onreadystatechange = function() { //Call a function when the state changes.
+        if (request.readyState == 4 && request.status == 200) {
+            document.getElementById("loader").remove();
+            
+            btn.onclick = function() { toggleForm(); };
+            btn.setAttribute("class", "chat-icon filter-green");
+            chatContainer.appendChild(btn);
+        } else if (request.readyState == 4 && request.status == 500) {
+            const cross = document.createElement("img");
+            cross.src = "images/red_cross.svg";
+            cross.setAttribute("class", "disabled-cross");
+            document.getElementById("loader").remove();
+            btn.setAttribute("class", "chat-icon disabled");
+            chatContainer.appendChild(btn);
+            chatContainer.appendChild(cross);
+        }
+    }
+    request.send(); 
+};
 
 function loadOfflineJSON(callback) {
     var chosenCity = (selectCity && selectCity.value) ? selectCity.value: '';
@@ -193,6 +224,82 @@ function switchWeatherImages(data){
     } else {
         weatherIcon.src = "images/sunny.svg";
     }
+}
+
+function sendMessage(){
+    var url = window.location;
+    var request = new XMLHttpRequest();
+    var textArea = document.getElementById('msg');
+    var chatMessage = textArea.value;
+    
+    const chatBox = document.getElementById('chat-box');
+    const messageBubble = document.createElement('div');
+    const status = document.createElement('div');
+
+    // set a status as 'Sent' for the current message
+    status.innerHTML = 'Sent';
+    status.setAttribute('id', 'status');
+    status.setAttribute('class', 'status');
+    status.setAttribute('name', chatMessage);
+
+    // create a message bubble with the new message and clear the text field
+    messageBubble.innerHTML = chatMessage;
+    messageBubble.setAttribute('class', 'sentMessageBubble');
+    textArea.value = '';
+    chatBox.appendChild(messageBubble);
+
+    // if there is a status already in the chat - clear it, we only need the status for latest message
+    if (chatBox.contains(document.getElementById("status"))) {
+        document.getElementById("status").remove();
+    }
+    chatBox.appendChild(status);
+    
+    // auto scroll to the bottom if the chat overflows the div
+    var objDiv = document.getElementById("chat-box");
+    objDiv.scrollTop = objDiv.scrollHeight;
+
+    // make POST request to servlet which queues the message
+    request.open('POST', url.protocol+ "//" + url.hostname + ":" + url.port + "/resorts/chat", true);
+    request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    request.send(chatMessage);
+
+    // 2 seconds later, issue a request to read the message back.
+    setTimeout(function() {
+        consumeMessage();
+    }, 2000);
+
+}
+
+function consumeMessage() {
+    var url = window.location;
+    var request = new XMLHttpRequest();
+
+    // make GET request to servlet which consumes the message from the queue
+    request.open('GET', url.protocol+ "//" + url.hostname + ":" + url.port + "/resorts/chat", true);
+
+    request.onreadystatechange = function() { //Call a function when the state changes.
+        if (request.readyState == 4 && request.status == 200) {
+
+            // create message bubble
+            const chatBox = document.getElementById('chat-box');
+            const messageBubble = document.createElement('div');
+            messageBubble.innerHTML = "Thank you for your question. An agent will be with you shortly.";
+            messageBubble.setAttribute('class', 'receivedMessageBubble');
+
+            // if message consumed from queue is the expected message, change 'Sent' to 'Received'
+            if (chatBox.contains(document.getElementById("status"))) {
+                if (document.getElementById("status").getAttribute("name") == request.responseText) {
+                    document.getElementById("status").innerHTML = "Received";
+                }
+            }
+            chatBox.appendChild(messageBubble);
+
+            // auto scroll to the bottom if the chat overflows the div
+            var objDiv = document.getElementById("chat-box");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+    }
+    request.send();    
 }
 
 function switchImages(){
@@ -275,6 +382,15 @@ function callRESTAPI() {
         // }
     };
     request.send();
+}
+
+function toggleForm() {
+    var form = document.getElementById("myForm");
+    if (form.style.display === "none") {
+      form.style.display = "block";
+    } else {
+      form.style.display = "none";
+    }
 }
 
 function callAvailabilityChecker(dateObj, elem) {

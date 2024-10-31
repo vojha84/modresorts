@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="pikaday.css">
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600" rel="stylesheet">
     <!-- <script src="lib/pickaday.js"></script> -->
-    <title>Mod Resorts (An EASeJ application)</title>
+    <title>MOD RESORTS (A Transformation Advisor sample application)</title>
 
     <script>
         function showCurrentDate() {
@@ -50,6 +50,10 @@
 
     <main class="hero js-hero">
         <nav class="sub-nav">
+            <div id="chat-container" class="chat-container">
+                <div id="loader" class="loader"></div>
+            </div>
+            <div class="selection">
             <div class="select-container">
                 <select onchange="callRESTAPI()" class="select-city js-select">
                     <option value="">Where to?</option>
@@ -109,7 +113,18 @@
             <a href="/resorts/logout">
                 <button class="button--submit" value="Submit">Logout</button>
             </a>
+        </div>
         </nav>
+        <div class="chat-popup" id="myForm" style="display: none;">
+            <form class="form-container">
+              <label for="msg" class="chat-header"><b>Support Chat</b></label>
+              <div class="chat-box" id="chat-box"></div>
+              <div class="message-nav">
+              <textarea placeholder="Type message.." id="msg" required></textarea>
+              <img class="send-button filter-blue" src="images/send-button.svg" onclick="sendMessage()" alt="">
+              </div>
+            </form>
+        </div>
         <div class="details-container js-container">
             <h1 class="h1 h1__city js-city"></h1>
             <h5 class="h5 h5__country js-country"></h5>
