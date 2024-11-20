@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="pikaday.css">
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600" rel="stylesheet">
     <!-- <script src="lib/pickaday.js"></script> -->
-    <title>Mod Resorts (An EASeJ application)</title>
+    <title>ModResorts (An EASeJ Application)</title>
 
     <script>
         function showCurrentDate() {
@@ -37,14 +37,11 @@
             <img class="resort-name--heading" src="images/mod-resort-name.svg" alt="">
         </div>
 
-        <ul class="main-nav--list">
+        <ul class="main-nav--list" id="main-nav-list">
             <li class="main-nav--list__item">Home</li>
             <li class="main-nav--list__item">Reservations</li>
             <li class="main-nav--list__item">Reward Center</li>
-            <li class="main-nav--list__item">
-                <img class="globe-icon" src="images/globe-icon.svg" alt="">
-                <span class="languages-link">Languages</span>
-            </li>
+            <li id="team-loader" class="loader team-link"></li>
         </ul>
     </header>
 
@@ -148,6 +145,11 @@
             <div class="weather-container">
                 <span class="factor vis-miles js-vis-mi"></span>M <span class="factor">&nbsp;|</span><span
                     class="factor vis-km js-vis-km"></span> KM
+            </div>
+        </div>
+        <div class="team-wrapper hide-team" id="team-wrapper">
+            <h1 class="h1 team-header">Meet the team</h1>
+            <div class="team-containers" id="team-containers">
             </div>
         </div>
     </main>
