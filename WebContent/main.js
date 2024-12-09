@@ -116,7 +116,36 @@ selectCity.addEventListener("change", function(e){
 
 window.onload = function() {
     var url = window.location;
+    
     var request = new XMLHttpRequest();
+    var dbRequest = new XMLHttpRequest();
+
+    const navBar = document.getElementById("main-nav-list");
+    const meetTheTeam = document.createElement("li");
+    meetTheTeam.innerHTML = "Meet the team";
+    meetTheTeam.setAttribute("class", "main-nav--list__item team-link");
+
+    // make GET request to servlet to test connection
+    dbRequest.open('GET', url.protocol+ "//" + url.hostname + ":" + url.port + "/resorts/db/connect", true);
+
+    dbRequest.onreadystatechange = function() { //Call a function when the state changes.
+        if (dbRequest.readyState == 4 && dbRequest.status == 200) {
+            loadTeam();
+            document.getElementById("team-loader").remove();
+            meetTheTeam.onclick = function() { showTeam(); };
+            navBar.appendChild(meetTheTeam);
+
+        } else if (dbRequest.readyState == 4 && dbRequest.status == 500) {
+            const cross = document.createElement("img");
+            cross.src = "images/red_cross.svg";
+            cross.setAttribute("class", "disabled-cross-team");
+            document.getElementById("team-loader").remove();
+            meetTheTeam.appendChild(cross);
+            navBar.appendChild(meetTheTeam);
+        }
+    }
+    
+    dbRequest.send();
 
     var chatContainer = document.getElementById("chat-container");
     const btn = document.createElement("img");
@@ -145,6 +174,64 @@ window.onload = function() {
     }
     request.send(); 
 };
+
+function loadTeam() {
+    var url = window.location;
+    var dbRequest = new XMLHttpRequest();
+
+    // make GET request to servlet to get STAFF data
+    dbRequest.open('GET', url.protocol+ "//" + url.hostname + ":" + url.port + "/resorts/staff", true);
+
+    dbRequest.onreadystatechange = function() { //Call a function when the state changes.
+        if (dbRequest.readyState == 4 && dbRequest.status == 200) {
+            for (const line of dbRequest.responseText.split("\n")) {
+                const obj = JSON.parse(line);
+                createTeamElements(obj);
+            }
+        } else if (dbRequest.readyState == 4 && dbRequest.status == 500) {
+        }
+    }
+    dbRequest.send();
+}
+
+function createTeamElements(obj) {
+    const wrapper = document.getElementById("team-containers");
+    const container = document.createElement("div");
+    container.setAttribute("class", "team-container");
+
+    const img = document.createElement("img");
+    img.setAttribute("class", "team-photo");
+    img.src = "images/staff" + obj.ID + ".jpeg";
+
+    const name = document.createElement("h5");
+    name.setAttribute("class", "h5 name-label line line__name");
+    name.innerHTML = obj.NAME + ", " + obj.AGE;
+
+    const bio = document.createElement("span");
+    bio.innerHTML = obj.BIO
+
+    container.appendChild(img);
+    container.appendChild(name);
+    container.appendChild(bio);
+    wrapper.appendChild(container);
+}
+
+function showTeam() {
+    const wrapper = document.getElementById("team-wrapper");
+    if (wrapper.classList.contains("show-team")) {
+        wrapper.classList.add("hide-team");
+        wrapper.classList.remove("show-team");
+        var chosenCity = (selectCity && selectCity.value) ? selectCity.value: '';
+        if (chosenCity.length != 0) {
+            callRESTAPI();
+        }
+    } else {
+        wrapper.classList.add("show-team");
+        window.scrollTo({top: 0, behavior: 'smooth'});
+        container.classList.remove("is-selected");
+        wrapper.classList.remove("hide-team");        
+    }
+}
 
 function loadOfflineJSON(callback) {
     var chosenCity = (selectCity && selectCity.value) ? selectCity.value: '';
@@ -175,6 +262,11 @@ function loadOfflineJSON(callback) {
 }
 
 function updateForecast(data){
+    const wrapper = document.getElementById("team-wrapper");
+    if (wrapper.classList.contains("show-team")){
+        wrapper.classList.add("hide-team");
+        wrapper.classList.remove("show-team");
+    }
     if(data && data.current_observation){
         switchImages();
         var direction = data.current_observation.wind_dir;
